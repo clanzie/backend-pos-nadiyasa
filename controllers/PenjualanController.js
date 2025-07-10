@@ -155,7 +155,7 @@ const exportPenjualan = async (req, res) => {
     });
 
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return; // header tetap rata tengah
+      if (rowNumber === 1) return;
       row.getCell("tanggal_transaksi").alignment = { horizontal: "left" };
       row.getCell("invoice").alignment = { horizontal: "left" };
       row.getCell("user").alignment = { horizontal: "left" };

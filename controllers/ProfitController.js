@@ -118,7 +118,6 @@ const exportProfit = async (req, res) => {
       { header: "NOMINAL", key: "nominal", width: 40 },
     ];
 
-    // Set header (baris 1) rata tengah
     worksheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
       cell.alignment = { horizontal: "center" };
@@ -130,9 +129,7 @@ const exportProfit = async (req, res) => {
       };
     });
 
-    // Tambahkan data
     profit.forEach((item) => {
-      // Jika ada detail transaksi, tampilkan semua produk
       if (
         item.transaksi &&
         item.transaksi.detail_transaksi &&
@@ -159,9 +156,9 @@ const exportProfit = async (req, res) => {
       }
     });
 
-    // Set alignment isi kolom (mulai baris 2)
+
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return; // skip header
+      if (rowNumber === 1) return;
       row.getCell("created_at").alignment = { horizontal: "left" };
       row.getCell("invoice").alignment = { horizontal: "left" };
       row.getCell("produk").alignment = { horizontal: "left" };
@@ -177,7 +174,6 @@ const exportProfit = async (req, res) => {
       });
     });
 
-    // Tambahkan total (jika ada)
     const totalRow = worksheet.addRow({
       created_at: "",
       invoice: "",

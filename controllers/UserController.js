@@ -2,7 +2,6 @@ const express = require("express");
 const prisma = require("../prisma/client");
 const bcrypt = require("bcryptjs");
 
-//Fungsi find user
 const findUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -207,7 +206,6 @@ const updateUser = async (req, res) => {
   }
 };
 
-// Fungsi delete user
 const deleteUser = async (req, res) => {
   const { id } = req.params;
   try {

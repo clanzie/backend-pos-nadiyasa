@@ -324,7 +324,7 @@ const routes = [
   {
     method: "get",
     path: "/customer/:id",
-    middlewares: [verifyToken, authorizeRole(["admin", "owner"])],
+    middlewares: [verifyToken, authorizeRole(["admin", "owner", "kasir"])],
     handler: customerController.findCustomerById,
   },
   {
@@ -350,13 +350,13 @@ const routes = [
   {
     method: "get",
     path: "/keranjang",
-    middlewares: [verifyToken, authorizeRole(["kasir", "owner"])],
+    middlewares: [verifyToken, authorizeRole(["kasir", "owner", "kasir"])],
     handler: keranjangController.findKeranjang,
   },
   {
     method: "post",
     path: "/keranjang",
-    middlewares: [verifyToken, validateKeranjang, handleValidationErrors, authorizeRole(["kasir", "owner"])],
+    middlewares: [verifyToken, validateKeranjang, handleValidationErrors, authorizeRole(["kasir", "owner", "kasir"])],
     handler: keranjangController.createKeranjang,
   },
   {

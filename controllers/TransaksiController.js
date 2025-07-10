@@ -419,7 +419,6 @@ const findAllTransaksi = async (req, res) => {
       },
     });
 
-    // Hitung jumlah transaksi hari ini
     let transaksiHariIni = 0;
     if (todayFlag) {
       transaksiHariIni = transaksiList.length;
