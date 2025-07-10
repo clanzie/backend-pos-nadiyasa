@@ -164,7 +164,7 @@ const routes = [
   {
     method: "get",
     path: "/produk-kasir",
-    middlewares: [verifyToken, authorizeRole(["owner, kasir"])],
+    middlewares: [verifyToken, authorizeRole(["owner", "kasir"])],
     handler: produkController.findProdukKasir,
   },
   {

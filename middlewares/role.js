@@ -8,7 +8,6 @@ const authorizeRole = (roles) => {
     });
     if (!user) return res.status(403).json({ message: "Akses ditolak" });
 
-    // Izinkan owner akses semua
     if (user.role.nama_role === "owner") {
       return next();
     }
