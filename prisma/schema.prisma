@@ -1,0 +1,294 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id_role      Int     @id @default(autoincrement())
+  nama_role    String  @unique
+  users   Users[]
+
+  @@map("role")
+}
+
+model Users {
+  id         Int        @id @default(autoincrement())
+  username   String     
+  email      String     @unique
+  password   String
+  id_role    Int
+  role       Role       @relation(fields: [id_role], references: [id_role], onDelete: Restrict)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  keranjang  Keranjang[]
+  transaksi  Transaksi[]
+
+  @@map("users")
+}
+
+model Kategori {
+  id_kategori         Int       @id @default(autoincrement())
+  nama_kategori       String
+  gambar_kategori     String?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  produk              Produk[]
+
+  @@map("kategori")
+}
+
+model Produk {
+  id_produk         Int                @id @default(autoincrement())
+  id_kategori       Int
+  nama_produk       String
+  gambar_produk     String
+  barcode_produk    String
+  stok_produk       Int
+  satuan            String
+  harga_beli        Float
+  harga_jual        Float
+  kategori          Kategori           @relation(fields: [id_kategori], references: [id_kategori], onDelete: Restrict)
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
+  keranjang         Keranjang[]
+  detail_transaksi  DetailTransaksi[]
+  detail_gudang     DetailGudang[]
+  detail_pengadaan  DetailPengadaan[]
+  detail_retur_customer DetailReturCustomer[]
+  detail_retur_supplier DetailReturSupplier[]
+  adit_stok         AuditStok[]
+
+  @@map("produk")
+}
+
+model Gudang {
+  id_gudang     Int            @id @default(autoincrement())
+  nama_gudang   String
+  alamat_gudang String
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  detail_gudang DetailGudang[]
+  audit_stok       AuditStok[]
+
+  @@map("gudang")
+}
+
+model DetailGudang {
+  id_produk   Int
+  id_gudang   Int
+  stok_gudang Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  produk      Produk   @relation(fields: [id_produk], references: [id_produk], onDelete: Cascade)
+  gudang      Gudang   @relation(fields: [id_gudang], references: [id_gudang], onDelete: Cascade)
+
+  @@id([id_produk, id_gudang])
+  @@map("detail_gudang")
+}
+
+model Keranjang {
+  id_keranjang Int     @id @default(autoincrement())
+  id_user      Int
+  id_produk    Int
+  jumlah       Int
+  harga        Float
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  user         Users    @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  produk       Produk   @relation(fields: [id_produk], references: [id_produk], onDelete: Cascade)
+
+  @@map("keranjang")
+}
+
+model Customer {
+  id_customer      Int        @id @default(autoincrement())
+  nama_customer    String
+  alamat_customer  String
+  no_telp_customer String
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+  transaksi        Transaksi[]
+
+  @@map("customer")
+}
+
+model Transaksi {
+  id_transaksi      Int               @id @default(autoincrement())
+  id_user           Int
+  id_customer       Int? 
+  invoice           String            @unique
+  tunai             Float
+  kembalian         Float
+  diskon            Float?
+  total_harga       Float
+  tanggal_transaksi DateTime          @default(now())
+  metode_transaksi  String
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  user              Users             @relation(fields: [id_user], references: [id], onDelete: Restrict)
+  customer          Customer?         @relation(fields: [id_customer], references: [id_customer], onDelete: SetNull)
+  detail_transaksi  DetailTransaksi[]
+  profit            Profit[]
+  retur_customer    ReturCustomer[]
+  audit_stok       AuditStok[]
+
+  @@map("transaksi")
+}
+
+model DetailTransaksi {
+  id_transaksi Int
+  id_produk    Int
+  jumlah       Int
+  harga        Float
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  transaksi    Transaksi @relation(fields: [id_transaksi], references: [id_transaksi], onDelete: Restrict)
+  produk       Produk    @relation(fields: [id_produk], references: [id_produk], onDelete: Restrict)
+
+  @@id([id_transaksi, id_produk])
+  @@map("detail_transaksi")
+}
+
+model ReturCustomer {
+  id_retur_customer       Int                @id @default(autoincrement())
+  id_transaksi   Int
+  invoice        String
+  tanggal_retur  DateTime           @default(now())
+  created_at     DateTime           @default(now())
+  updated_at     DateTime           @updatedAt
+  transaksi      Transaksi          @relation(fields: [id_transaksi], references: [id_transaksi], onDelete: Restrict)
+  detail_retur   DetailReturCustomer[]
+  audit_stok     AuditStok[]
+
+  @@map("retur_customer")
+}
+
+model DetailReturCustomer {
+  id_retur_customer     Int
+  id_produk    Int
+  jumlah       Int
+  alasan       String?
+  jenis        String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  retur        ReturCustomer @relation(fields: [id_retur_customer], references: [id_retur_customer], onDelete: Restrict)
+  produk       Produk        @relation(fields: [id_produk], references: [id_produk], onDelete: Restrict)
+
+  @@id([id_retur_customer, id_produk])
+  @@map("detail_retur_customer")
+}
+
+model Supplier {
+  id_supplier       Int                @id @default(autoincrement())
+  nama_supplier     String
+  alamat_supplier   String
+  no_telp_supplier  String
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
+  pengadaan         Pengadaan[]
+
+  @@map("supplier")
+}
+
+model Pengadaan {
+  id_pengadaan      Int                  @id @default(autoincrement())
+  id_supplier       Int
+  total_harga       Float
+  total_produk      Int
+  tanggal_pengadaan DateTime             @default(now())
+  created_at        DateTime             @default(now())
+  updated_at        DateTime             @updatedAt
+  supplier          Supplier             @relation(fields: [id_supplier], references: [id_supplier], onDelete: Restrict)
+  detail_pengadaan  DetailPengadaan[]
+  retur_supplier    ReturSupplier[]
+  audit_stok       AuditStok[]
+
+  @@map("pengadaan")
+}
+
+model DetailPengadaan {
+  id_pengadaan      Int
+  id_produk         Int
+  harga_beli        Float
+  jumlah_produk     Int
+  sub_total_harga   Float
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  pengadaan         Pengadaan @relation(fields: [id_pengadaan], references: [id_pengadaan], onDelete: Restrict)
+  produk            Produk    @relation(fields: [id_produk], references: [id_produk], onDelete: Restrict)
+
+  @@id([id_pengadaan, id_produk])
+  @@map("detail_pengadaan")
+}
+
+model ReturSupplier {
+  id_retur_supplier        Int                @id @default(autoincrement())
+  id_pengadaan    Int
+  tanggal_retur   DateTime           @default(now())
+  created_at      DateTime           @default(now())
+  updated_at      DateTime           @updatedAt
+  pengadaan       Pengadaan          @relation(fields: [id_pengadaan], references: [id_pengadaan], onDelete: Restrict)
+  detail_retur    DetailReturSupplier[]
+  audit_stok      AuditStok[]
+
+  @@map("retur_supplier")
+}
+
+model DetailReturSupplier {
+  id_retur_supplier      Int
+  id_produk     Int
+  jumlah        Int
+  alasan        String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  retur         ReturSupplier @relation(fields: [id_retur_supplier], references: [id_retur_supplier], onDelete: Restrict)
+  produk        Produk        @relation(fields: [id_produk], references: [id_produk], onDelete: Restrict)
+
+  @@id([id_retur_supplier, id_produk])
+  @@map("detail_retur_supplier")
+}
+
+model Profit {
+  id_profit     Int       @id @default(autoincrement())
+  id_transaksi  Int
+  nominal       Float
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  transaksi     Transaksi @relation(fields: [id_transaksi], references: [id_transaksi], onDelete: Restrict)
+
+  @@map("profit")
+}
+
+model AuditStok {
+  id_audit       Int       @id @default(autoincrement())
+  id_produk      Int
+  jenis          String
+  jumlah         Int
+  id_gudang      Int?
+  id_transaksi   Int?
+  id_pengadaan   Int? 
+  id_retur_supplier       Int?
+  id_retur_customer       Int?
+  keterangan     String?
+  tanggal        DateTime  @default(now())
+  produk         Produk?    @relation(fields: [id_produk], references: [id_produk], onDelete: Restrict)
+  transaksi      Transaksi?    @relation(fields: [id_transaksi], references: [id_transaksi], onDelete: SetNull)
+  gudang         Gudang?    @relation(fields: [id_gudang], references: [id_gudang], onDelete: SetNull)
+  pengadaan      Pengadaan?    @relation(fields: [id_pengadaan], references: [id_pengadaan], onDelete: SetNull)
+  retur_customer ReturCustomer? @relation(fields: [id_retur_customer], references: [id_retur_customer], onDelete: SetNull)
+  retur_supplier ReturSupplier? @relation(fields: [id_retur_supplier], references: [id_retur_supplier], onDelete: SetNull)
+
+  @@map("audit_stok")
+}
+
+
