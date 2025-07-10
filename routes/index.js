@@ -126,7 +126,7 @@ const routes = [
   {
     method: "get",
     path: "/kategori/:id",
-    middlewares: [verifyToken, authorizeRole(["admin", "owner"])],
+    middlewares: [verifyToken, authorizeRole(["admin", "owner", "kasir"])],
     handler: kategoriController.findKategoriById,
   },
   {
